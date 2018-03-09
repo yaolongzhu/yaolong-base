@@ -9,6 +9,7 @@
     <modules>
         <module>yaolong-base-ar</module>
         <module>yaolong-base-id</module>
+        <module>yaolong-base-inf</module>
     </modules>
     <packaging>pom</packaging>
 
