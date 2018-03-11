@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans.xsd
+						http://www.springframework.org/schema/context
+						http://www.springframework.org/schema/context/spring-context.xsd">
+	<!-- 开启spring注解 -->
+	<context:annotation-config />
+
+	<bean id="base_session_constant" class="yaolong.base.session.cons.Constant">
+		<property name="maxAge" value="${base.session.redis.maxInactiveIntervalInSeconds}" />
+		<property name="headerName" value="${base.session.domain.header}" />
+		<property name="origin" value="${base.session.domain.origin}" />
+		<property name="repeatOpen" value="${base.session.repeat.open}"></property>
+	</bean>
+
+	<bean id="base_session_config" class="yaolong.base.session.config.HttpSessionConfiguration">
+		<property name="maxInactiveIntervalInSeconds" value="${base.session.redis.maxInactiveIntervalInSeconds}" />
+	</bean>
+
+	<bean id="base_session_strategy" class="yaolong.base.session.config.BaseHeaderHttpSessionStrategy">
+		<property name="strategy" ref="${base.session.from}" />
+	</bean>
+
+	<!-- redis -->
+	<bean id="base_session_jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+		<property name="maxTotal" value="${base.session.jedis.pool.maxTotal}" />
+		<property name="maxIdle" value="${base.session.jedis.pool.maxIdle}" />
+		<property name="minIdle" value="${base.session.jedis.pool.minIdle}" />
+		<property name="maxWaitMillis" value="${base.session.jedis.pool.maxWaitMillis}" />
+		<property name="testOnBorrow" value="${base.session.jedis.pool.testOnBorrow}" />
+		<property name="testOnReturn" value="${base.session.jedis.pool.testOnReturn}" />
+		<property name="testWhileIdle" value="${base.session.jedis.pool.testWhileIdle}" />
+		<property name="timeBetweenEvictionRunsMillis" value="${base.session.jedis.pool.timeBetweenEvictionRunsMillis}"></property>
+	</bean>
+
+	<bean id="base_session_redisSentinelConfiguration" class="yaolong.base.session.config.SessionRedisSentinelConfiguration">
+		<property name="name" value="${base.session.redis.sentinel.master.name}">
+		</property>
+		<property name="sentinel" value="${base.session.redis.sentinels}">
+		</property>
+	</bean>
+
+	<bean id="base_session_sentinel_jedisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
+		<property name="password" value="${base.session.redis.pw}" />
+		<constructor-arg name="sentinelConfig" ref="${base.session.redis.sentinel.configuration}" />
+		<constructor-arg name="poolConfig" ref="${base.session.jedis.pool.config}" />
+	</bean>
+
+
+</beans>
