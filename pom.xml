@@ -12,6 +12,7 @@
 
         <module>yaolong-base-inf</module>
         <module>yaolong-base-session</module>
+        <module>yaolong-base-common</module>
     </modules>
     <packaging>pom</packaging>
 
