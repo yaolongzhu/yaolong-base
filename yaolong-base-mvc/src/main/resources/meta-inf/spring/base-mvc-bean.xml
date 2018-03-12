@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:security="http://www.springframework.org/schema/security" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:aop="http://www.springframework.org/schema/aop" xmlns:jee="http://www.springframework.org/schema/jee"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+	http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd">
+
+	<bean id="base_propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="order" value="9999999" />
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="locations">
+			<list>
+				<value>classpath*:META-INF/properties/*.properties</value>
+				<value>classpath*:prop/*.properties</value>
+				<value>file:/app/properties/*.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="base_jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="${base.dataSource}" />
+	</bean>
+
+	<bean id="base_dataSourceProxy" class="org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy">
+		<property name="targetDataSource" ref="${base.dataSource}" />
+	</bean>
+
+	<!-- <bean id="dbcp_dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close" lazy-init="true" 
+		primary="true"> <property name="driverClassName" value="${jdbc.driverClassName}" /> <property name="url" value="${jdbc.url}" 
+		/> <property name="username" value="${jdbc.username}" /> <property name="password" value="${jdbc.password}" /> <property 
+		name="validationQuery" value="${jdbc.validationQuery}" /> <property name="initialSize" value="${jdbc.initialSize}" /> <property 
+		name="maxActive" value="${jdbc.maxActive}" /> <property name="minIdle" value="${jdbc.minIdle}" /> <property name="maxIdle" 
+		value="${jdbc.maxIdle}" /> </bean> -->
+
+	<bean id="base_dataSource" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close" lazy-init="true"
+		primary="true">
+		<!-- <property name="weight" value="${jdbc.weight}" /> <property name="mode" value="${jdbc.mode}" /> -->
+		<property name="url" value="${jdbc.url}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+		<property name="initialSize" value="${jdbc.initialSize}" />
+		<property name="minIdle" value="${jdbc.minIdle}" />
+		<property name="maxActive" value="${jdbc.maxActive}" />
+		<property name="validationQuery" value="${jdbc.validationQuery}" />
+		<property name="maxWait" value="${jdbc.maxWait}" />
+		<property name="timeBetweenEvictionRunsMillis" value="${jdbc.timeBetweenEvictionRunsMillis}" />
+		<property name="minEvictableIdleTimeMillis" value="${jdbc.minEvictableIdleTimeMillis}" />
+		<property name="testWhileIdle" value="${jdbc.testWhileIdle}" />
+		<property name="testOnBorrow" value="${jdbc.testOnBorrow}" />
+		<property name="testOnReturn" value="${jdbc.testOnReturn}" />
+		<property name="poolPreparedStatements" value="${jdbc.poolPreparedStatements}" />
+		<property name="maxPoolPreparedStatementPerConnectionSize" value="${jdbc.maxPoolPreparedStatementPerConnectionSize}" />
+		<property name="filters" value="${jdbc.filters}" />
+	</bean>
+
+	<bean id="base_dataSourceTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
+		lazy-init="true">
+		<property name="dataSource" ref="${base.dataSource}" />
+	</bean>
+	<bean id="transactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
+		<property name="transactionManager">
+			<ref bean="base_dataSourceTransactionManager" />
+		</property>
+	</bean>
+	<tx:advice id="base_txAdvice" transaction-manager="base_dataSourceTransactionManager">
+		<tx:attributes>
+			<tx:method name="onSuccessfulAuthentication" read-only="false" />
+			<tx:method name="onUnsuccessfulAuthentication" read-only="false" />
+			<tx:method name="auditLog*" isolation="DEFAULT" read-only="false" propagation="REQUIRES_NEW" />
+			<tx:method name="loadUserByUsername" isolation="DEFAULT" read-only="false" propagation="REQUIRED" />
+			<tx:method name="synchro*" isolation="DEFAULT" read-only="false" propagation="REQUIRED" />
+
+			<tx:method name="modify*" isolation="DEFAULT" read-only="false" propagation="REQUIRED" />
+			<tx:method name="copy*" isolation="DEFAULT" read-only="false" propagation="REQUIRED" />
+			<tx:method name="build*" isolation="DEFAULT" read-only="false" propagation="REQUIRED" />
+
+			<tx:method name="create*" isolation="DEFAULT" read-only="false" propagation="REQUIRED" />
+			<tx:method name="update*" isolation="DEFAULT" read-only="false" propagation="REQUIRED" />
+			<tx:method name="save*" isolation="DEFAULT" read-only="false" propagation="REQUIRED" />
+			<tx:method name="add*" isolation="DEFAULT" read-only="false" propagation="REQUIRED" />
+			<tx:method name="merge*" isolation="DEFAULT" read-only="false" propagation="REQUIRED" />
+			<tx:method name="delete*" isolation="DEFAULT" read-only="false" propagation="REQUIRED" />
+			<tx:method name="undelete*" isolation="DEFAULT" read-only="false" propagation="REQUIRED" />
+			<tx:method name="cancel*" isolation="DEFAULT" read-only="false" propagation="REQUIRED" />
+			<tx:method name="submit*" isolation="DEFAULT" read-only="false" propagation="REQUIRED" />
+			<tx:method name="insert*" isolation="DEFAULT" read-only="false" propagation="REQUIRED" />
+			<tx:method name="confirm*" isolation="DEFAULT" read-only="false" propagation="REQUIRED" />
+			<tx:method name="unconfirm*" isolation="DEFAULT" read-only="false" propagation="REQUIRED" />
+
+			<tx:method name="load*" isolation="DEFAULT" propagation="REQUIRED" read-only="true" />
+			<tx:method name="list*" isolation="DEFAULT" propagation="REQUIRED" read-only="true" />
+			<tx:method name="find*" isolation="DEFAULT" propagation="REQUIRED" read-only="true" />
+			<tx:method name="query*" isolation="DEFAULT" propagation="REQUIRED" read-only="true" />
+			<tx:method name="pagedQuery*" isolation="DEFAULT" propagation="REQUIRED" read-only="true" />
+			<tx:method name="checkExist*" isolation="DEFAULT" propagation="REQUIRED" read-only="true" />
+
+			<tx:method name="remove*" isolation="DEFAULT" read-only="false" propagation="REQUIRED" />
+			<tx:method name="batch*" isolation="DEFAULT" read-only="false" propagation="REQUIRED" />
+		</tx:attributes>
+	</tx:advice>
+
+	<aop:config>
+		<aop:pointcut id="base_serviceOperation" expression="execution(public * *..*.service..*Service.*(..))" />
+		<aop:advisor pointcut-ref="base_serviceOperation" advice-ref="base_txAdvice" />
+	</aop:config>
+
+	<!-- <aop:config> <aop:pointcut id="base_serviceOperation" expression="execution(* com.yaolong..*Service.*(..))" /> <aop:pointcut 
+		id="base_jiebao_serviceOperation" expression="execution(* com.jiebao..*Service.*(..))" /> <aop:advisor pointcut-ref="base_serviceOperation" 
+		advice-ref="base_txAdvice" /> <aop:advisor pointcut-ref="base_jiebao_serviceOperation" advice-ref="base_txAdvice" /> </aop:config> -->
+
+	<bean id="base_localValidator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean">
+		<property name="providerClass" value="org.hibernate.validator.HibernateValidator" />
+	</bean>
+
+	<!-- <bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource"> <property 
+		name="defaultEncoding" value="UTF-8" /> <property name="basenames"> <list> <value>classpath:META-INF/conf/i18n/properties</value> 
+		</list> </property> </bean> -->
+
+	<bean class="yaolong.base.mvc.base.ValidatorHandlerExceptionResolver">
+		<property name="order" value="0" />
+	</bean>
+
+
+	<bean id="fastJsonConfig" class="com.alibaba.fastjson.support.config.FastJsonConfig">
+		<!-- Default charset -->
+		<property name="charset" value="UTF-8" />
+		<!-- Default dateFormat -->
+		<property name="dateFormat" value="yyyy-MM-dd HH:mm:ss" />
+		<!-- Feature -->
+		<!-- SerializerFeature -->
+		<property name="serializerFeatures" ref="${base.mvc.serializer.features}">
+		</property>
+		<!-- Global SerializeFilter -->
+		<property name="serializeFilters">
+			<list>
+				<ref bean="base_long_serializer" />
+			</list>
+		</property>
+	</bean>
+
+	<bean id="base_mvc_serializer_features_list" class="java.util.ArrayList">
+		<constructor-arg>
+			<list>
+				<!-- <value>WriteMapNullValue</value> -->
+				<!-- <value>QuoteFieldNames</value> -->
+				<!-- <value>WriteDateUseDateFormat</value> -->
+				<value>WriteNullNumberAsZero</value>
+				<value>DisableCircularReferenceDetect</value>
+				<value>WriteNullStringAsEmpty</value>
+				<value>WriteNullBooleanAsFalse</value>
+			</list>
+		</constructor-arg>
+	</bean>
+
+	<bean id="base_long_serializer" class="yaolong.base.common.util.BaseSerializer"></bean>
+	<bean id="DisableCircularReferenceDetect" class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
+		<property name="staticField" value="com.alibaba.fastjson.serializer.SerializerFeature.DisableCircularReferenceDetect"></property>
+	</bean>
+
+
+	<bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+		<property name="formatters">
+			<set>
+				<bean class="yaolong.base.mvc.base.DateAnnotationFormatterFactory" />
+			</set>
+		</property>
+		<property name="converters">
+			<set>
+				<bean class="yaolong.base.mvc.base.StringToDateConverter" />
+			</set>
+		</property>
+	</bean>
+
+</beans>

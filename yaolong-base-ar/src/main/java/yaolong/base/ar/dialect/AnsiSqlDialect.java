@@ -22,7 +22,7 @@ import yaolong.base.ar.Table;
 
 /**
  * 
- * @author LUOGX
+ * @author yaolong
  *
  */
 public class AnsiSqlDialect extends Dialect {
