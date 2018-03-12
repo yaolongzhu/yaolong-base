@@ -15,6 +15,7 @@
         <module>yaolong-base-common</module>
         <module>yaolong-base-mvc</module>
         <module>yaolong-base-test</module>
+        <module>yaolong-base-assembly</module>
     </modules>
     <packaging>pom</packaging>
 
