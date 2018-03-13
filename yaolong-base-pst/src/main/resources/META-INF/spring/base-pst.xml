@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:jee="http://www.springframework.org/schema/jee"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+	http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd">
+
+	<bean id="base_database_config" class="yaolong.base.pst.config.DatabaseConfig">
+		<property name="dataSource" ref="base_dataSourceProxy" />
+		<property name="showSql" value="${jdbc.showSql}" />
+		<property name="config" ref="${yaolong.base.pst.ar.config}" />
+	</bean>
+
+	<bean id="base_pst_dbpro" class="yaolong.base.ar.DbPro"></bean>
+
+	<bean id="base_pst_ar_config" class="yaolong.base.pst.config.ArConfigImpl">
+		<property name="dialect">
+			<bean class="yaolong.base.ar.dialect.MysqlDialect" />
+		</property>
+		<property name="dbPro" ref="base_pst_dbpro"></property>
+	</bean>
+
+	<bean id="base_pst_baseDao" class="yaolong.base.pst.jdbc.BaseDao"
+		abstract="true">
+		<property name="template" ref="base_jdbcTemplate" />
+	</bean>
+
+	<bean id="base_per_jdbc" class="yaolong.base.pst.jdbc.impl.JdbcImpl"
+		parent="base_pst_baseDao"></bean>
+
+
+</beans>
